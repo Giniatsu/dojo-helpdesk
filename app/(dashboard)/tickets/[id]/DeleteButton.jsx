@@ -3,10 +3,14 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { TiDelete } from "react-icons/ti"
+import { useTransition } from "react"
+import { deleteTicket } from "../actions"
 
 export default function DeleteButton({ id }) {
+  const [isPending, startTransition] = useTransition()
   const [isloading, setIsLoading] = useState(false)
   const router = useRouter()
+  //not being used due to transition to using of server actions with the usage of the useTransition hook
   const handleClick = async () => {
     setIsLoading(true)
     const res = await fetch(`http://localhost:3000/api/tickets/${id}`, {
@@ -24,14 +28,14 @@ export default function DeleteButton({ id }) {
     }
   }
   return (
-    <button className="btn-primary" onClick={handleClick} disabled={isloading}>
-        {isloading && (
+    <button className="btn-primary" onClick={() => startTransition(() => deleteTicket(id))} disabled={isPending}>
+        {isPending && (
             <>
             <TiDelete />
             Deleting...
             </>
         )}
-        {!isloading && (
+        {!isPending && (
             <>
             <TiDelete />
             Delete Ticket
